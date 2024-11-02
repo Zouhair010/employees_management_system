@@ -1,9 +1,34 @@
 import tkinter as tk
 import csv
-
+# create the main window
 window = tk.Tk()
-# window.geometry('600x400')
+window.geometry('600x400')
+window.configure(bg='orange')
 window.title("temployees management")
+
+
+#frame
+frame0 = tk.Frame(window,bg='orange')
+frame1 = tk.Frame(window,bg='orange')
+frame2 = tk.Frame(window,bg='orange')
+frame3 = tk.Frame(window,bg='orange')
+frame4 = tk.Frame(window,bg='orange')
+
+frame0.grid(column=1,row=1)
+# frame0.place(x=20,y=19)
+frame1.grid(column=1,row=2)
+frame2.grid(column=2,row=2)
+frame3.grid(column=1,row=3)
+frame4.grid(column=2,row=3)
+# frame4.place(x=400,y=400)
+
+#text to welcome the user
+label = tk.Label(frame0, text="welcome to the employees management", height='2', fg='gold', font=('Arial',30,'bold','underline'),bg='orange',padx= 40)
+label.grid()
+# label.place()
+# label to show the result
+result_label = tk.Label(frame0, text="", fg='red', font=('Arial',15,'bold'),bg='orange')
+result_label.grid()
 
 #hash map
 class HashMap:
@@ -43,50 +68,35 @@ class HashMap:
 
 def load_employees():
     try:
-        with open('C:\\Users\\dell\\Desktop\\data.csv','r') as csvfile: #open the csv file in the read mod
-            reader = csv.DictReader(csvfile) #convert the data on the csv file to dictionaries with keys names of columns and values is the data in rows
-            data = [(row['number'],row['fname'],row['lname'],row['rank']) for row in reader] #list of dicts 
+        with open('C:\\Users\\dell\\Desktop\\datanew.csv','w+') as csvfile:
+            csvfile.seek(0)
+            reader = csv.DictReader(csvfile)
+            data = [(row['number'],row['fname'],row['lname'],row['rank']) for row in reader]
         return data 
     except Exception as a:
-        print('the process not done',a) #to show the type of the exception
+        print('the process not done',a)
         return None
 
 def push_hashmap():
     data = load_employees()
-    length = len(data) 
-    if length == 0:
-        length = 10
-    hash_map = HashMap(length) #length of data as size of the hash map
-    for row in data:
-        hash_map.add(row) #add  data to the hash map
-    return hash_map #return the jash map instance
-
-#search function for search for an employee by using hash map quick search 
-def search_employee():
-    hash_map = push_hashmap() #the hash map 
-    key = search_entry.get() #get the entry of the user
-    if key == '' or key == ' ' or key == '  ': #if the user enter nothing or space or double space tells him he should enter a key
-        result_label['fg'] = 'red'
-        result_label.config(text=f"you should enter a key")
-        return
-    if hash_map.contains(key): #quick check if an employee exist on file
-        result_label['fg'] = 'green'
-        result_label.config(text=f"{hash_map.get(key)} exist")
-    elif not hash_map.contains(key): #quick check if an employee does not exist on file
-        result_label['fg'] = 'red'
-        result_label.config(text=f"{hash_map.get(key)} does not exist")
+    hash_map = HashMap(20)
+    if type(data) != 'NoneType':
+        for row in data:
+            hash_map.add(row)
+    
+    return hash_map
 
 def add_employee():
     hash_map = push_hashmap()
-    employee_info = add_entry.get() #get the entry of the user
-    employee_info_whitespaces = [] # list chars in info with whitespaces to make them separate words after
+    employee_info = add_entry.get()
+    employee_info_whitespaces = []
     for char in employee_info:
         if char == ',':
-            employee_info_whitespaces.append(' ') #replace the camma with whitespace
+            employee_info_whitespaces.append(' ')
         else:
             employee_info_whitespaces.append(char)
-    string_employee_info_whitespaces = ''.join(employee_info_whitespaces) #convert the list of chars in employee info to string
-    list_employee_info = string_employee_info_whitespaces.split() # separate the string to list of info ['number', 'first_name', 'last_name', 'rank']
+    string_employee_info_whitespaces = ''.join(employee_info_whitespaces)
+    list_employee_info = string_employee_info_whitespaces.split()
 
     if list_employee_info == '' or list_employee_info == ' ' or list_employee_info == '  ' or len(list_employee_info)<3: #if the user enter nothing or space or double space tells him he should enter a key
         result_label['fg'] = 'red'
@@ -108,11 +118,24 @@ def add_employee():
         result_label['fg'] = 'red'
         result_label.config(text=f"{list_employee_info[1]} {list_employee_info[2]} is already added")
 
-# remove function 
+def search_employee():
+    hash_map = push_hashmap()
+    key = search_entry.get()
+    if key == '' or key == ' ' or key == '  ': #if the user enter nothing or space or double space tells him he should enter a key
+        result_label['fg'] = 'red'
+        result_label.config(text=f"you should enter a key")
+        return
+    if hash_map.contains(key): #quick check if an employee exist on file
+        result_label['fg'] = 'green'
+        result_label.config(text=f"{hash_map.get(key)} exist")
+    elif not hash_map.contains(key):
+        result_label['fg'] = 'red'
+        result_label.config(text=f"{hash_map.get(key)} does not exist")
+
 def remove_employee():
     hash_map = push_hashmap()
     key = remove_entry.get()
-    info_employee = hash_map.get(key) #get the info employees from hash map by their number
+    info_employee = hash_map.get(key)
     if key == '' or key == ' ' or key == '  ': #if the user enter nothing or space or double space tells him he should enter a key
         result_label['fg'] = 'red'
         result_label.config(text=f"you should enter a key")
@@ -122,76 +145,51 @@ def remove_employee():
         result_label.config(text=f"{info_employee} has been deleted")
         hash_map.remove(key)
         # apdate the employee file
-        with open('C:\\Users\\dell\\Desktop\\data.csv','r') as csvfile: #open the csv file in the read mode
-            reader = csv.DictReader(csvfile) #convert the data on the csv file to dictionaries with keys names of columns and values is the data in rows
-            data = list(reader) #list of dicts
-        data = [row for row in data if not (row['number']==info_employee[0] and row['fname']==info_employee[1] and row['lname']==info_employee[2] and row['rank']==info_employee[3])] #remove the info of employees the data 
-        fieldnames = ['number','fname','lname','rank'] 
-        with open('C:\\Users\\dell\\Desktop\\data.csv', 'w', newline='') as csvfile: #open the csv file in the write mode
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames) 
-            writer.writeheader() # add the headers to the file
-            writer.writerows(data) # write the updated data
+        with open('C:\\Users\\dell\\Desktop\\data.csv','r') as csvfile:
+            reader = csv.DictReader(csvfile)
+            data = list(reader)
+            print('data befor deleting',data)
+        data = [row for row in data if not (row['number']==info_employee[0] and row['fname']==info_employee[1] and row['lname']==info_employee[2] and row['rank']==info_employee[3])]
+        fieldnames = ['number','fname','lname','rank']
+        print('data after deleting',data)
+        with open('C:\\Users\\dell\\Desktop\\data.csv', 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(data)
     else: # tell user if the employee does not exist
         result_label['fg'] = 'red'
         result_label.config(text=f"{key} does not exist")
 
+#search box
+search_label = tk.Label(frame1, text="search for an employee",bg='orange')
+search_label.grid(row=1)
+search_entry = tk.Entry(frame1,width='25')
+search_entry.grid(row=2)
+search_button = tk.Button(frame1, text="search", width='20', height='1', bg='#F0E68C', command=search_employee)
+search_button.grid(row=3)
+#addition box
+add_label = tk.Label(frame2, text="add an employee",bg='orange')
+add_label.grid(row=1)
+add_entry = tk.Entry(frame2,width='25')
+add_entry.grid(row=2)
+add_button = tk.Button(frame2, text="add",width='20', height='1', bg='#F0E68C', command=add_employee)
+add_button.grid(row=3)
+#delete box
+remove_label = tk.Label(frame3, text="remove an employee",bg='orange')
+remove_label.grid(row=1)
+remove_entry =tk.Entry(frame3,width='25')
+remove_entry.grid(row=2)
+remove_button = tk.Button(frame3, text="remove", width='20', height='1', bg='#F0E68C',command=remove_employee)
+remove_button.grid(row=3)
+#password box
+instraction_label = tk.Label(frame4, text="pravite information of employees",bg='orange')
+instraction_label.grid(row=1)
+print_entry = tk.Entry(frame4,width='25')
+print_entry.grid(row=2)
+print_button = tk.Button(frame4, text="show", width='20', height='1', bg='#F0E68C')
+print_button.grid(row=3)
+print_label = tk.Label(frame0, text="",height='4', fg='red', font=('Arial',15,'bold'),bg='orange')
+print_label.grid()
 
-def show_employees():
-    info_employees = load_employees()
-    password = show_entry.get()
-    if password == 'employees':
-        show_label['foreground'] = 'black'
-        show_label['text']= f'{info_employees}'
-        
-    else:
-        show_label['foreground'] = 'red'
-        show_label['text']= 'wrong password'
-
-
-frame = tk.Frame(window,border=2,background='#b1f1a7', relief="solid")
-frame.pack()
-
-label_frame1 = tk.LabelFrame(frame, text='Info Manipulation',background='#b1f1a7')
-label_frame1.grid(row=0,column=0,sticky='nsew')
-
-label_frame3 = tk.LabelFrame(frame ,background='#b1f1a7', text='result')
-label_frame3.grid(row=0,column=1,sticky='nsew')
-
-
-result_label = tk.Label(label_frame3 ,text='',background='#b1f1a7',foreground='black',border=1,relief='solid')
-result_label.grid(row=0,column=0,sticky='nsnsew')
-
-label_frame2 = tk.LabelFrame(frame, text='Searching Info   ',background='#b1f1a7')
-label_frame2.grid(row=1,column=0,pady=(17,0),sticky='nsew')
-
-add_entry = tk.Entry(label_frame1,width='25',border=1,relief="solid",background='#e1fae6')
-add_entry.insert(0,'add an employee')
-add_entry.bind("<FocusIn>",lambda e:add_entry.delete('0','end'))
-add_entry.grid(row=0,column=0,pady=(10,0),sticky='nsew')
-add_button = tk.Button(label_frame1, background='#47b75f',text="add",command=add_employee)
-add_button.grid(row=1,column=0,padx=5,sticky='nsew')
-
-remove_entry =tk.Entry(label_frame1,width='25',border=1,relief="solid",background='#e1fae6')
-remove_entry.insert(0,'remove an employee')
-remove_entry.bind("<FocusIn>",lambda e:remove_entry.delete('0','end'))
-remove_entry.grid(row=3,column=0,pady=(10,0),sticky='nsew')
-remove_button = tk.Button(label_frame1,background='#47b75f', text="remove",command=remove_employee)
-remove_button.grid(row=4,column=0,padx=5,sticky='nsew')
-
-search_entry = tk.Entry(label_frame2,width='25',border=1,relief="solid",background='#e1fae6')
-search_entry.insert(0,'search for an employee')
-search_entry.bind("<FocusIn>",lambda e:search_entry.delete('0','end'))
-search_entry.grid(row=0,column=0,pady=(10,0),sticky='nsew')
-search_button = tk.Button(label_frame2, text="search",background='#47b75f',command=search_employee)
-search_button.grid(row=1,column=0,padx=5,sticky='nsew')
-
-show_entry = tk.Entry(label_frame2,width='25',border=1,relief="solid",background='#e1fae6')
-show_entry.insert(0,'password')
-show_entry.bind("<FocusIn>",lambda e: show_entry.delete('0','end'))
-show_entry.grid(row=2,pady=(10,0),sticky='nsew')
-show_button = tk.Button(label_frame2,background='#47b75f', text="show",command=show_employees)
-show_button.grid(row=3,column=0,padx=5,sticky='nsew')
-show_label = tk.Label(label_frame3, text="",width=100, wraplength=200, background='#b1f1a7')
-show_label.grid(row=1,column=0,sticky='nsew')
-
+#run the window
 window.mainloop()
