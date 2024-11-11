@@ -158,7 +158,7 @@ def show_list_employees():
 
 
 window = tk.Tk()
-window.iconbitmap("C:\\Users\\dell\\Desktop\\online_information_marketing_social_contact_connection_internet_icon_230574.ico") #to change the default icon
+window.iconbitmap("C:\\Users\\dell\\Desktop\\project1\\online_information_marketing_social_contact_connection_internet_icon_230574.ico") #to change the default icon
 window.resizable(False, False) #to make the size of the window constant
 window.title("Employees Management")
 
